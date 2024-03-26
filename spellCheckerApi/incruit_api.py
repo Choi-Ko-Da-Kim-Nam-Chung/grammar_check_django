@@ -1,5 +1,4 @@
 import requests
-from urllib.parse import quote, unquote
 from bs4 import BeautifulSoup
 from bs4.element import Tag
 
@@ -14,11 +13,11 @@ def string_indexing(response):
         if isinstance(unit, Tag) and flag == 0: # grammar error
             flag = 1
             result.append({
-                'help': '',
                 'orgStr': unit.text.strip(),
                 'canWord': [],
                 'errorIdx': unit_idx, 
                 'correctMethod': 0,
+                'help': '',
                 'start': idx, 
                 'end': idx+len(unit.text.strip())
             })
@@ -48,7 +47,9 @@ def ending_indexing(response, result):
     for idx in range(len(li_list)):
         result[idx]['correctMethod'] =  class_dict[li_list[idx].get('class')[0]] # er-1 => 맞춤법 오류, er-2 => 띄어쓰기 오류, er-3 => 표준어 의심
         result[idx]['help'] = li_list[idx].find('span').text # front에서 br로 주면 좋은지 확인 후 \n => <br>로 교체
-        result[idx]['canWord'].append(li_list[idx].find('button').text.strip())
+        for i in li_list[idx].find_all('button'): # 대체 문자는 여러 개 될 수 있음
+            if i.get('class') and i.get('class')[0] == 'spellOver':
+                result[idx]['canWord'].append(i.get('replacetxt'))
 
     # print('ending_indexing done', result)
     return result
@@ -63,8 +64,8 @@ def url_encode(text):
             encoded_parts.append(char)
         else: # korean
             encoded_parts.append('%u{:04X}'.format(ord(char)))
+            
     result = ''.join(encoded_parts)
-    
     # print('url_encode done', result)
     return result
 
@@ -83,6 +84,8 @@ def parse_html(response):
     
     
 def check(val):
+    if not val:
+        return {'result': False, 'message': 'check your text'}
     
     data = {
         'md': 'spellerv2',
@@ -92,9 +95,15 @@ def check(val):
     response = requests.post(BASE_URL, data=data, headers = headers)
 
     if response.status_code == 200:
-        return parse_html(response.text)
+        return {
+                'original': val,
+                'correction' : parse_html(response.text)
+                }
     else:
-        return {'result': False, 'message': 'Failed to get a valid response from the server.'}
+        return {
+                'result': False, 
+                'message': 'Failed to get a valid response from the server.'
+                }
     
     
 # print(check("안되 조금 더 살펴보고 틀린게 없는지 보아ㅑ지"))

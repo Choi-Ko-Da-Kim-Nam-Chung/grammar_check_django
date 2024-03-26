@@ -4,4 +4,5 @@ from . import views
 
 urlpatterns = [
     path('',views.busanSpellChecker),
+    path('incruit', views.incruitSpellChecker),
 ]
