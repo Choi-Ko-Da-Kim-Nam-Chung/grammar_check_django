@@ -1,10 +1,8 @@
 import re
 import requests
 import json
-from collections import OrderedDict
 
-# 수정된 부분: `base_url`을 부산대학교 맞춤법 검사기 URL로 설정
-base_url = 'http://speller.cs.pusan.ac.kr/results'
+base_url = 'https://www.saramin.co.kr/zf_user/tools/spell-check'
 
 def check(text):
     if isinstance(text, list):
@@ -19,15 +17,15 @@ def check(text):
         return {'result': False, 'message': 'Text exceeds the maximum allowed length.'}
 
     payload = {
-        'text1': text
+        'content': text
     }
 
     headers = {
-        'Content-Type': 'application/x-www-form-urlencoded'
+        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
     }
 
     response = requests.post(base_url, data=payload, headers=headers)
-
+    print("result : " + response.text)
     if response.status_code == 200:
         data = parse_response(response.text)
         # 여기서 `parse_response`는 응답 텍스트를 처리하고 필요한 데이터를 추출하는 함수입니다.
@@ -39,13 +37,13 @@ def check(text):
 def parse_response(response_text):
     # Since `extract_data_from_html` already returns a Python object, we don't need to parse it again.
     data = extract_data_from_html(response_text)
-    
+    print(data)
     if not data:
         return None  # or handle the error as appropriate
 
     # 결과를 저장할 리스트를 초기화합니다.
     results = []
-    
+
     # `errInfo` 배열을 순회하면서 각 오류에 대한 정보를 추출합니다.
     for error_info in data[0]['errInfo']:
         error_details = {
@@ -58,14 +56,13 @@ def parse_response(response_text):
             'end': error_info['end'],  # 오류가 끝나는 위치
         }
         results.append(error_details)
-    
-    return results
 
+    return results
 
 def extract_data_from_html(html_content):
     # `data` 변수에 할당된 JSON 데이터를 찾기 위한 정규 표현식
     pattern = re.compile(r'data\s*=\s*(\[{.*?}\]);', re.DOTALL)
-    
+
     # 정규 표현식을 사용하여 HTML에서 JSON 문자열을 찾습니다.
     match = pattern.search(html_content)
     if match:
