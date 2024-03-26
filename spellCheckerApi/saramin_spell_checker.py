@@ -2,7 +2,7 @@ import re
 import requests
 import json
 
-base_url = 'https://www.saramin.co.kr/zf_user/tools/spell-check'
+base_url = 'https://www.jobkorea.co.kr/Service/User/Tool/SpellCheckExecute'
 
 def check(text):
     if isinstance(text, list):
@@ -17,27 +17,33 @@ def check(text):
         return {'result': False, 'message': 'Text exceeds the maximum allowed length.'}
 
     payload = {
-        'content': text
+        'tBox': text
     }
 
     headers = {
-        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+        'Origin': 'https://www.jobkorea.co.kr',
+        'Referer': 'https://www.jobkorea.co.kr/service/user/tool/spellcheck?TS_XML=3',
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36'
     }
 
-    response = requests.post(base_url, data=payload, headers=headers)
-    print("result : " + response.text)
+    response = requests.post(base_url, data=payload, headers=headers, )
+    print(response.status_code)
+    print(response.headers)
+    print(json.dumps(response.text, ensure_ascii=False))
+
     if response.status_code == 200:
         data = parse_response(response.text)
         # 여기서 `parse_response`는 응답 텍스트를 처리하고 필요한 데이터를 추출하는 함수입니다.
         # 이 함수는 두 번째 코드에서 `parseJSON` 함수의 로직을 참고하여 구현해야 합니다.
-        return data
+        # return data
     else:
-        return {'result': False, 'message': 'Failed to get a valid response from the server.'}
+        return { 'result': False, 'message': 'Failed to get a valid response from the server.' }
 
 def parse_response(response_text):
     # Since `extract_data_from_html` already returns a Python object, we don't need to parse it again.
     data = extract_data_from_html(response_text)
-    print(data)
+
     if not data:
         return None  # or handle the error as appropriate
 
