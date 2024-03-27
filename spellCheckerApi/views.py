@@ -25,3 +25,15 @@ def jobKoreaSpellChecker(request):
         json.dumps(result, ensure_ascii=False),
         content_type='application/json',
     )
+
+@csrf_exempt
+def incruitSpellChecker(request):
+    # request.body를 읽어 문자열로 변환합니다.
+    body_str = request.body.decode('utf-8')
+    result = incruit_api.check(body_str)
+
+    # 처리 결과를 JSON으로 반환합니다.
+    return HttpResponse(
+        json.dumps(result),
+        content_type='application/json',
+    )
