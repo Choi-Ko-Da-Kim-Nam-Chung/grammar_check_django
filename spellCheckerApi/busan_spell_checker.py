@@ -1,7 +1,6 @@
 import re
 import requests
 import json
-from collections import OrderedDict
 
 # 수정된 부분: `base_url`을 부산대학교 맞춤법 검사기 URL로 설정
 base_url = 'http://speller.cs.pusan.ac.kr/results'
@@ -60,7 +59,6 @@ def parse_response(response_text):
         results.append(error_details)
     
     return results
-
 
 def extract_data_from_html(html_content):
     # `data` 변수에 할당된 JSON 데이터를 찾기 위한 정규 표현식
