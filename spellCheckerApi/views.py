@@ -1,6 +1,4 @@
-from . import busan_spell_checker
-from . import jobkorea_spell_checker
-from . import incruit_spell_checker
+from spell_checker import busan_spell_checker, jobkorea_spell_checker, incruit_spell_checker
 from django.http import HttpResponse
 import json
 from django.views.decorators.csrf import csrf_exempt
