@@ -1,14 +1,14 @@
-import requests
+import requests, re
 from bs4 import BeautifulSoup
 from bs4.element import Tag
 
 BASE_URL = 'https://lab.incruit.com/editor/spell/spell_ajax.asp'
 
-def string_indexing(response):
+def string_indexing(response, originText):
     result = []
     idx, unit_idx, flag = 0, 0, 0
     soup = BeautifulSoup(response, 'html.parser')
-    
+    # originText 비교해가며 인덱싱 해야함.
     for unit in soup.descendants:
         if isinstance(unit, Tag) and flag == 0: # grammar error
             flag = 1
@@ -23,15 +23,17 @@ def string_indexing(response):
             })
             idx += len(unit.text.strip())
             unit_idx += 1
-        elif unit.isspace(): 
-            continue
         else:
             if flag:
                 flag = 0
                 continue
+            if '\n' in unit:
+                unit = re.sub(r'\n', '', unit)
+            if 0 < idx - 1 and originText[idx-1] != ' ':
+                idx -= 1
             idx += len(unit.strip())
         idx += 1
-        
+
     # print('string_indexing done', result)
     return result
 
@@ -70,13 +72,13 @@ def url_encode(text):
     return result
 
 
-def parse_html(response):
+def parse_html(response, originText):
     wrong_text_num = int(response[-1])
     if wrong_text_num == 0:
         return {'result': 0, 'message': 'correct grammar'} # -1 : 서버 에러 0 : 오류 문장 0개 1: 오류 문장 1개 ...
     
     parsed_list = response.split('#^#')
-    result = string_indexing(parsed_list[0])
+    result = string_indexing(parsed_list[0], originText)
     result = ending_indexing(parsed_list[2], result)
     
     # print('parse_html done', result)
@@ -97,7 +99,7 @@ def check(val):
     if response.status_code == 200:
         return {
                 'original': val,
-                'correction' : parse_html(response.text)
+                'correction' : parse_html(response.text, val)
                 }
     else:
         return {

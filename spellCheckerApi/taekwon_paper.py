@@ -7,9 +7,12 @@ from bs4.element import Tag
 
 def string_indexing(input_string):
     result = []
+    originText = '띠 어 !쓰 이 ! 얶떡해? 오똑햐'
+    print(originText)
     idx, unit_idx, flag = 0, 0, 0
     soup = BeautifulSoup(input_string, 'html.parser')
     for a in soup.descendants:
+        print(a)
         if isinstance(a, Tag) and flag == 0: # grammar error
             flag = 1
             result.append({
@@ -22,36 +25,28 @@ def string_indexing(input_string):
                 'end': idx+len(a.text.strip()) # 끝 인덱스를 idx + 1 해야하나 말아야하나?
             })
             idx += len(a.text.strip())
+            print(a.text, idx - len(a.text.strip()), idx)
             unit_idx += 1
-        elif a.isspace(): 
-            continue
-        else:
             
+        else:
             if flag:
                 flag = 0
                 continue
+            if '\n' in a:
+                a = re.sub(r'\n', '', a)
+            if 0 < idx - 1 and originText[idx-1] != ' ':
+                print(originText[idx-1])
+                idx -= 1
             idx += len(a.strip())
         idx += 1
     
     return result
 
 
-    
 
-
-input_string = """안녕? 나 <em class='er-1' attrtop="" id="erck_1_0" class="replace_spell" onclick="fn_SpellClick('1_0');" style="cursor:pointer">택원이</em>
-<em class='er-3' attrtop="" id="erck_3_1" class="replace_spell" onclick="fn_SpellClick('3_1');" style="cursor:pointer">반나서</em>
-<em class='er-3' attrtop="" id="erck_3_2" class="replace_spell" onclick="fn_SpellClick('3_2');" style="cursor:pointer">방가워</em>
-하하 내일 봐#^#"""
-"""
-<p id="spellingAlltest" class="text_edit_area" style="display:none">
-    안녕? 나 <em class='er-1' attrtop="" id="erck_1_0" class="replace_spell" onclick="fn_SpellClick('1_0');" style="cursor:pointer">태권이</em>
-    <em class='er-3' attrtop="" id="erck_3_1" class="replace_spell" onclick="fn_SpellClick('3_1');" style="cursor:pointer">반라서</em>
-    <em class='er-3' attrtop="" id="erck_3_2" class="replace_spell" onclick="fn_SpellClick('3_2');" style="cursor:pointer">반가워</em>
-    하하 내일 봐
-</p>
-#^#
-"""
+input_string = """<em class='er-3' attrtop="" id="erck_3_0" class="replace_spell" onclick="fn_SpellClick('3_0');" style="cursor:pointer">띠 어 !쓰</em> 이 ! �Z떡해? <em class='er-1' attrtop="" id="erck_1_1" class="replace_spell" onclick="fn_SpellClick('1_1');" style="cursor:pointer">오똑햐</em>"""
+# 아 니!!!! ! 왜 이 래! ! !!
+# print(string_indexing(input_string))
 a = """<li class='er-1' id="opener_1_0">
     <dl>
         <dt>이게징짜</dt>
@@ -117,8 +112,71 @@ def ending_indexing(response, result):
     # print(result)
     
         
-ending_indexing(a, retult)
+# ending_indexing(a, retult)
 # result = string_indexing(input_string)
 # print(result)
 # print("Content inside <em> tags:", result['em_content'])
 # print("Content outside <em> tags:", result['non_em_content'])
+
+def url_encode(text):
+    encoded_parts = []
+    for char in text:
+        if ' ' == char:  # space
+            encoded_parts.append('%20')
+        elif ord(char) < 128: # english
+            encoded_parts.append(char)
+        else: # korean
+            encoded_parts.append('%u{:04X}'.format(ord(char)))
+            
+    result = ''.join(encoded_parts)
+    # print('url_encode done', result)
+    # print(result)
+    return result
+
+BASE_URL = 'https://lab.incruit.com/editor/spell/spell_ajax.asp'
+
+def check(val):
+    if not val:
+        return {'result': False, 'message': 'check your text'}
+    
+    data = {
+        'md': 'spellerv2',
+        'selfintro': url_encode(val)   # escape가 필요한지는 요청 내용에 따라 다름 
+    }
+    headers = {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}
+    response = requests.post(BASE_URL, data=data, headers = headers)
+    print(response.content)
+    print()
+    if response.status_code == 200:
+        print(response.text)
+        
+originText = '띠 어 !쓰 이 ! 얶떡해? 오똑햐'
+print(check(originText))
+a = 65533
+# print(chr(a))
+def url_decode(encoded_text):
+    decoded_parts = []
+    i = 0
+    while i < len(encoded_text):
+        if encoded_text[i] == '%':
+            if encoded_text[i + 1: i + 3] == '20':  # Decoding '%20' to space
+                decoded_parts.append(' ')
+                i += 3
+            else:  # Decoding '%uXXXX' sequences
+                code = int(encoded_text[i + 2: i + 6], 16)  # Extract hex code
+                decoded_parts.append(chr(code))  # Convert to character
+                i += 6
+        else:
+            decoded_parts.append(encoded_text[i])
+            i += 1
+
+    return ''.join(decoded_parts)
+a = '%uB760%20%uC5B4%20!%uC4F0%20%uC774%20!%20%uC5B6%uB5A1%uD574?%20%uC624%uB611%uD590'
+# decoded_string = url_decode(a)
+# print(decoded_string)
+encoded_string = b'\xc0\xcc ! \x9eZ\xb6\xb1\xc7\xd8?'
+
+# Decode the string using Latin-1 encoding
+# decoded_string = encoded_string.decode('euc-kr')
+
+# print(decoded_string)
