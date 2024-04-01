@@ -11,6 +11,8 @@ def string_indexing(response, originText):
     # originText 비교해가며 인덱싱 해야함.
     for unit in soup.descendants:
         if isinstance(unit, Tag) and flag == 0: # grammar error
+            if unit.name == 'br':
+                continue
             flag = 1
             result.append({
                 'orgStr': unit.text.strip(),
