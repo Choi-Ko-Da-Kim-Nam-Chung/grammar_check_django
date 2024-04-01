@@ -4,5 +4,6 @@ from . import views
 
 urlpatterns = [
     path('busan', views.busanSpellChecker),
-    path('jobkorea', views.jobKoreaSpellChecker)
+    path('jobkorea', views.jobKoreaSpellChecker),
+    path('incruit', views.incruitSpellChecker)
 ]
