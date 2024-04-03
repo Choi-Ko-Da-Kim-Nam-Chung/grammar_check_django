@@ -16,7 +16,7 @@ def string_indexing(response, originText):
             flag = 1
             result.append({
                 'orgStr': unit.text.strip(),
-                'canWord': [],
+                'candWord': [],
                 'errorIdx': unit_idx, 
                 'correctMethod': 0,
                 'help': '',
@@ -53,7 +53,7 @@ def ending_indexing(response, result):
         result[idx]['help'] = li_list[idx].find('span').text # front에서 br로 주면 좋은지 확인 후 \n => <br>로 교체
         for i in li_list[idx].find_all('button'): # 대체 문자는 여러 개 될 수 있음
             if i.get('class') and i.get('class')[0] == 'spellOver':
-                result[idx]['canWord'].append(i.get('replacetxt'))
+                result[idx]['candWord'].append(i.get('replacetxt'))
 
     # print('ending_indexing done', result)
     return result
@@ -99,10 +99,7 @@ def check(val):
     response = requests.post(BASE_URL, data=data, headers = headers)
 
     if response.status_code == 200:
-        return {
-                'original': val,
-                'correction' : parse_html(response.text, val)
-                }
+        return parse_html(response.text, val)
     else:
         return {
                 'result': False, 
