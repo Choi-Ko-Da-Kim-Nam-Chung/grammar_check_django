@@ -38,29 +38,29 @@ def check(text):
 def parse_response(response_text, text):
     # Since `extract_data_from_html` already returns a Python object, we don't need to parse it again.
     data = json.loads(response_text)
-    print(data)
     results = []
 
     # `errInfo` 배열을 순회하면서 각 오류에 대한 정보를 추출합니다.
 
     current_idx = 0
 
-    for error_info in data['WordCandidateList']:
-        correct_method_value = calculate_correct_method(error_info['helpMessage'])
+    if 'WordCandidateList' in data:
+        for error_info in data['WordCandidateList']:
+            correct_method_value = calculate_correct_method(error_info['helpMessage'])
 
-        start_idx = calculate_idx(error_info['errorWord'], current_idx, text)
-        end_idx = start_idx + len(error_info['errorWord'])
-        error_details = {
-            'help': error_info['helpMessage'],  # 오류를 해결하기 위한 도움말
-            'orgStr': error_info['errorWord'],  # 오류가 발생한 원래 문자열
-            'candWord': remove_html(error_info['candidateWord']),  # 교정 제안
-            'errorIdx': start_idx,  # 오류 인덱스
-            'correctMethod': correct_method_value,  # 교정 방법
-            'start': start_idx,  # 오류가 시작되는 위치
-            'end': end_idx,  # 오류가 끝나는 위치
-        }
-        results.append(error_details)
-        current_idx = end_idx
+            start_idx = calculate_idx(error_info['errorWord'], current_idx, text)
+            end_idx = start_idx + len(error_info['errorWord'])
+            error_details = {
+                'help': error_info['helpMessage'],  # 오류를 해결하기 위한 도움말
+                'orgStr': error_info['errorWord'],  # 오류가 발생한 원래 문자열
+                'candWord': remove_html(error_info['candidateWord']),  # 교정 제안
+                'errorIdx': start_idx,  # 오류 인덱스
+                'correctMethod': correct_method_value,  # 교정 방법
+                'start': start_idx,  # 오류가 시작되는 위치
+                'end': end_idx,  # 오류가 끝나는 위치
+            }
+            results.append(error_details)
+            current_idx = end_idx
 
     return results
 def remove_html(html_str):
@@ -75,9 +75,6 @@ def calculate_idx(error_str, current_idx, text):
     return start_idx
 
 def calculate_correct_method(str):
-    if '틀린 말' in str:
-        return 1
-    elif '붙' in str or '띄' in str:
-        return 2
-    else:
-        return 1
+    if '틀린 말' in str: return 1
+    elif '붙' in str or '띄' in str: return 2
+    else: return 1
