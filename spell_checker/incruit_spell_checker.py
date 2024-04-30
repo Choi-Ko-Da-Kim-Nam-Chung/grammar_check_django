@@ -88,6 +88,7 @@ def parse_html(response, originText):
     
     
 def check(val):
+    val = val['text']
     if not val:
         return {'result': False, 'message': 'check your text'}
     
