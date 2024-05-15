@@ -77,7 +77,8 @@ def url_encode(text):
 def parse_html(response, originText):
     wrong_text_num = int(response[-1])
     if wrong_text_num == 0:
-        return {'result': 0, 'message': 'correct grammar'} # -1 : 서버 에러 0 : 오류 문장 0개 1: 오류 문장 1개 ...
+        # 틀린 문장이 없으면 빈 리스트 반환
+        return [] #{'result': 0, 'message': 'correct grammar'} # -1 : 서버 에러 0 : 오류 문장 0개 1: 오류 문장 1개 ...
     
     parsed_list = response.split('#^#')
     result = string_indexing(parsed_list[0], originText)
@@ -90,7 +91,7 @@ def parse_html(response, originText):
 def check(val):
     val = val['text']
     if not val:
-        return {'result': False, 'message': 'check your text'}
+        return []
     
     data = {
         'md': 'spellerv2',
@@ -102,10 +103,12 @@ def check(val):
     if response.status_code == 200:
         return parse_html(response.text, val)
     else:
-        return {
-                'result': False, 
-                'message': 'Failed to get a valid response from the server.'
-                }
+        # 에러시 빈 리스트 반환
+        return []
+'''{
+'result': False, 
+'message': 'Failed to get a valid response from the server.'
+}'''
     
     
 # print(check("안되 조금 더 살펴보고 틀린게 없는지 보아ㅑ지"))
