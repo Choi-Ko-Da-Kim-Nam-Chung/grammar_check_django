@@ -20,4 +20,4 @@ COPY . /app/
 RUN python manage.py collectstatic --noinput
 
 # 애플리케이션 서버 실행
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "your_project_name.wsgi:application"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "spellchecker.wsgi:application"]
