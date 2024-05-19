@@ -12,6 +12,7 @@ WORKDIR /app
 COPY requirements.txt /app/
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
+RUN pip install gevent  # gevent 설치
 
 # 프로젝트 코드 복사
 COPY . /app/
@@ -19,5 +20,5 @@ COPY . /app/
 # static 파일 수집
 RUN python manage.py collectstatic --noinput
 
-# 애플리케이션 서버 실행
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "spellchecker.wsgi:application"]
+# 애플리케이션 서버 실행 (gunicorn 설정 업데이트)
+CMD ["gunicorn", "--workers", "4", "--worker-class", "gevent", "--bind", "0.0.0.0:8000", "spellchecker.wsgi:application"]
