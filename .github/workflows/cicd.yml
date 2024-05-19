@@ -52,5 +52,3 @@ jobs:
           key: ${{ secrets.AWS_SSH_PRIVATE_KEY }}
           script: |
             ssh -o StrictHostKeyChecking=no ubuntu@10.0.134.104 'bash /home/ubuntu/deploy-django.sh'
-
-      

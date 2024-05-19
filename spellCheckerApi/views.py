@@ -19,7 +19,6 @@ def busanSpellChecker(request):
         json.dumps(result, ensure_ascii=False),
         content_type='application/json',
     )
-
 @csrf_exempt
 def jobKoreaSpellChecker(request):
     body_str = json.loads(request.body.decode('utf-8'))
