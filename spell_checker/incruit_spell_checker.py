@@ -10,11 +10,15 @@ def string_indexing(response, originText):
     soup = BeautifulSoup(response, 'html.parser')
     # originText 비교해가며 인덱싱 해야함.
     for unit in soup.descendants:
+        if unit == ' ':
+            continue
         if isinstance(unit, Tag) and flag == 0: # grammar error
+            if unit.name == 'br':
+                continue
             flag = 1
             result.append({
                 'orgStr': unit.text.strip(),
-                'canWord': [],
+                'candWord': [],
                 'errorIdx': unit_idx, 
                 'correctMethod': 0,
                 'help': '',
@@ -51,7 +55,7 @@ def ending_indexing(response, result):
         result[idx]['help'] = li_list[idx].find('span').text # front에서 br로 주면 좋은지 확인 후 \n => <br>로 교체
         for i in li_list[idx].find_all('button'): # 대체 문자는 여러 개 될 수 있음
             if i.get('class') and i.get('class')[0] == 'spellOver':
-                result[idx]['canWord'].append(i.get('replacetxt'))
+                result[idx]['candWord'].append(i.get('replacetxt'))
 
     # print('ending_indexing done', result)
     return result
@@ -75,7 +79,8 @@ def url_encode(text):
 def parse_html(response, originText):
     wrong_text_num = int(response[-1])
     if wrong_text_num == 0:
-        return {'result': 0, 'message': 'correct grammar'} # -1 : 서버 에러 0 : 오류 문장 0개 1: 오류 문장 1개 ...
+        # 틀린 문장이 없으면 빈 리스트 반환
+        return [] #{'result': 0, 'message': 'correct grammar'} # -1 : 서버 에러 0 : 오류 문장 0개 1: 오류 문장 1개 ...
     
     parsed_list = response.split('#^#')
     result = string_indexing(parsed_list[0], originText)
@@ -86,8 +91,9 @@ def parse_html(response, originText):
     
     
 def check(val):
+    val = val['text']
     if not val:
-        return {'result': False, 'message': 'check your text'}
+        return []
     
     data = {
         'md': 'spellerv2',
@@ -97,15 +103,14 @@ def check(val):
     response = requests.post(BASE_URL, data=data, headers = headers)
 
     if response.status_code == 200:
-        return {
-                'original': val,
-                'correction' : parse_html(response.text, val)
-                }
+        return parse_html(response.text, val)
     else:
-        return {
-                'result': False, 
-                'message': 'Failed to get a valid response from the server.'
-                }
+        # 에러시 빈 리스트 반환
+        return []
+'''{
+'result': False, 
+'message': 'Failed to get a valid response from the server.'
+}'''
     
     
 # print(check("안되 조금 더 살펴보고 틀린게 없는지 보아ㅑ지"))
