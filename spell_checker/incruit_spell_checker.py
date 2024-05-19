@@ -10,6 +10,8 @@ def string_indexing(response, originText):
     soup = BeautifulSoup(response, 'html.parser')
     # originText 비교해가며 인덱싱 해야함.
     for unit in soup.descendants:
+        if unit == ' ':
+            continue
         if isinstance(unit, Tag) and flag == 0: # grammar error
             if unit.name == 'br':
                 continue
