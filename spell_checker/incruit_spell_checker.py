@@ -4,12 +4,14 @@ from bs4.element import Tag
 
 BASE_URL = 'https://lab.incruit.com/editor/spell/spell_ajax.asp'
 
-def string_indexing(response, originText):
+def string_indexing(response, originText, space_num):
     result = []
-    idx, unit_idx, flag = 0, 0, 0
+    idx, unit_idx, flag = space_num, 0, 0
     soup = BeautifulSoup(response, 'html.parser')
     # originText 비교해가며 인덱싱 해야함.
     for unit in soup.descendants:
+        if unit == ' ':
+            continue
         if isinstance(unit, Tag) and flag == 0: # grammar error
             if unit.name == 'br':
                 continue
@@ -74,13 +76,14 @@ def url_encode(text):
     return result
 
 
-def parse_html(response, originText):
+def parse_html(response, originText, space_num):
     wrong_text_num = int(response[-1])
     if wrong_text_num == 0:
-        return {'result': 0, 'message': 'correct grammar'} # -1 : 서버 에러 0 : 오류 문장 0개 1: 오류 문장 1개 ...
+        # 틀린 문장이 없으면 빈 리스트 반환
+        return [] #{'result': 0, 'message': 'correct grammar'} # -1 : 서버 에러 0 : 오류 문장 0개 1: 오류 문장 1개 ...
     
     parsed_list = response.split('#^#')
-    result = string_indexing(parsed_list[0], originText)
+    result = string_indexing(parsed_list[0], originText, space_num)
     result = ending_indexing(parsed_list[2], result)
     
     # print('parse_html done', result)
@@ -88,9 +91,12 @@ def parse_html(response, originText):
     
     
 def check(val):
+    val = val['text']
     if not val:
-        return {'result': False, 'message': 'check your text'}
+        return []
     
+    # 맨 앞에 공백이 있으면 incruit에서 자동으로 제거 후 반환함.
+    space_num = len(val) - len(val.lstrip())
     data = {
         'md': 'spellerv2',
         'selfintro': url_encode(val)   # escape가 필요한지는 요청 내용에 따라 다름 
@@ -99,12 +105,14 @@ def check(val):
     response = requests.post(BASE_URL, data=data, headers = headers)
 
     if response.status_code == 200:
-        return parse_html(response.text, val)
+        return parse_html(response.text, val, space_num)
     else:
-        return {
-                'result': False, 
-                'message': 'Failed to get a valid response from the server.'
-                }
+        # 에러시 빈 리스트 반환
+        return []
+'''{
+'result': False, 
+'message': 'Failed to get a valid response from the server.'
+}'''
     
     
 # print(check("안되 조금 더 살펴보고 틀린게 없는지 보아ㅑ지"))
