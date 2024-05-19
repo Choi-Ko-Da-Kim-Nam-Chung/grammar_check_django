@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure--7(twt1vy6)t-6!k3nmawd676f1^g^bzsd5l5$)izg^9fqag$t
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['10.0.134.104', 'localhost', '127.0.0.1', 'api.spell-checker.co.kr']
 CSRF_COOKIE_SECURE = False
 
 
@@ -120,6 +120,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
