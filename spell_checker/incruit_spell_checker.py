@@ -105,7 +105,7 @@ def check(val):
     response = requests.post(BASE_URL, data=data, headers = headers)
 
     if response.status_code == 200:
-        return parse_html(response.text, val)
+        return parse_html(response.text, val, space_num)
     else:
         # 에러시 빈 리스트 반환
         return []
