@@ -43,7 +43,7 @@ def parse_response(response_text, text):
     # `errInfo` 배열을 순회하면서 각 오류에 대한 정보를 추출합니다.
 
     current_idx = 0
-
+    error_idx = 0
     if 'WordCandidateList' in data:
         for error_info in data['WordCandidateList']:
             correct_method_value = calculate_correct_method(error_info['helpMessage'])
@@ -54,13 +54,14 @@ def parse_response(response_text, text):
                 'help': error_info['helpMessage'],  # 오류를 해결하기 위한 도움말
                 'orgStr': error_info['errorWord'],  # 오류가 발생한 원래 문자열
                 'candWord': remove_html(error_info['candidateWord']),  # 교정 제안
-                'errorIdx': start_idx,  # 오류 인덱스
+                'errorIdx': error_idx,  # 오류 인덱스
                 'correctMethod': correct_method_value,  # 교정 방법
                 'start': start_idx,  # 오류가 시작되는 위치
                 'end': end_idx,  # 오류가 끝나는 위치
             }
             results.append(error_details)
             current_idx = end_idx
+            error_idx += 1
 
     return results
 def remove_html(html_str):
