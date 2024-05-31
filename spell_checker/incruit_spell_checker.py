@@ -5,11 +5,13 @@ from bs4.element import Tag
 BASE_URL = 'https://lab.incruit.com/editor/spell/spell_ajax.asp'
 
 def string_indexing(response, originText, space_num):
+    # print(response)
     result = []
     idx, unit_idx, flag = space_num, 0, 0
     soup = BeautifulSoup(response, 'html.parser')
     # originText 비교해가며 인덱싱 해야함.
     for unit in soup.descendants:
+        
         if unit == ' ':
             continue
         if isinstance(unit, Tag) and flag == 0: # grammar error
@@ -25,17 +27,27 @@ def string_indexing(response, originText, space_num):
                 'start': idx, 
                 'end': idx+len(unit.text.strip())
             })
+            # print(unit.text + "!끝!" + str(len(unit.text.strip())) +' '+ str(len(unit.text)) + ' '+str(idx) + ' ' + str(idx + len(unit.text.strip())))
+            
             idx += len(unit.text.strip())
             unit_idx += 1
+            
+            
         else:
             if flag:
+            # 2번 나오기 때문에 이미 위에서 처리했으면 flag = 1
                 flag = 0
                 continue
             if '\n' in unit:
+            # 엔터가 있으면 공백으로 바꿔줌
                 unit = re.sub(r'\n', '', unit)
             if 0 < idx - 1 and originText[idx-1] != ' ':
                 idx -= 1
+            # 중간에 올바른 맞춤법을 갖고있는 문자열 더해주기
+            # print(unit.text, len(unit.text), str(len(unit.strip())) + ' '+str(idx) + ' ' + str(idx + len(unit.strip())), "pass")
             idx += len(unit.strip())
+            if unit[-1] != ' ':
+                idx -= 1
         idx += 1
 
     # print('string_indexing done', result)
