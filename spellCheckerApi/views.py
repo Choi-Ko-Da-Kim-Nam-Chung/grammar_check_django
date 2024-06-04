@@ -40,3 +40,7 @@ def incruitSpellChecker(request):
         json.dumps(result),
         content_type='application/json',
     )
+
+@csrf_exempt
+def hello(reqest):
+    return HttpResponse("hello")
