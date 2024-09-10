@@ -52,7 +52,10 @@ def parse_response(response_text, original_text):
 
         # 이스케이프 문자로 인한 인덱스 보정
         adjusted_start, adjusted_end = adjust_indices_for_escape_characters(original_text, start, end)
-
+        
+        if adjusted_start == -1 and adjusted_end == -1:
+            continue
+        
         error_details = {
             'help': error_info['help'],  # 오류를 해결하기 위한 도움말
             'orgStr': error_info['orgStr'],  # 오류가 발생한 원래 문자열
