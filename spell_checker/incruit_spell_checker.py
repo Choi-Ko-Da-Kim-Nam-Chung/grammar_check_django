@@ -41,8 +41,11 @@ def string_indexing(response, originText, space_num):
             if '\n' in unit:
             # 엔터가 있으면 공백으로 바꿔줌
                 unit = re.sub(r'\n', '', unit)
-            if 0 < idx - 1 and originText[idx-1] != ' ':
-                idx -= 1
+            try:
+                if 0 < idx - 1 and originText[idx-1] != ' ':
+                    idx -= 1
+            except IndexError:
+                pass
             # 중간에 올바른 맞춤법을 갖고있는 문자열 더해주기
             # print(unit.text, len(unit.text), str(len(unit.strip())) + ' '+str(idx) + ' ' + str(idx + len(unit.strip())), "pass")
             idx += len(unit.strip())
