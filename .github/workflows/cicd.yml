@@ -45,7 +45,7 @@ jobs:
       - name: SSH into AWS EC2 instance
         uses: appleboy/ssh-action@master
         with:
-          host: 13.124.60.78
+          host: 3.39.130.18
           debug: true
           port: 22
           username: ubuntu
