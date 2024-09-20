@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure--7(twt1vy6)t-6!k3nmawd676f1^g^bzsd5l5$)izg^9fqag$t
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['172.31.15.143', 'localhost', '127.0.0.1', 'api.spell-checker.co.kr', '3.34.51.88', '3.34.51.88:8000']
+ALLOWED_HOSTS = ['172.31.15.143', 'localhost', '127.0.0.1', 'api.spell-checker.co.kr', '13.124.60.78', '13.124.60.78:8000']
 CSRF_COOKIE_SECURE = False
 
 
